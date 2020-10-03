@@ -1,30 +1,31 @@
 const CustomError = require("../extensions/custom-error");
 
 module.exports = function transform(arr) {
+    let newArr = [];
     if (Array.isArray(arr)) {
 
         for (let i = 0; i < arr.length; i++) {
 
-            switch (arr[i]) {
-                case '--discard-prev':
-                    arr.splice(i - 1, 2);
-                    i -= 2;
-                    break;
-                case '--discard-next':
-                    arr.splice(i, 2);
-                    i -= 2;
-                    break;
-                case '--double-next':
-                    arr[i] = arr[i + 1];
-                    break;
-                case '--double-prev':
-                    arr[i] = arr[i - 1];
-                    break;
+            if (arr[i] === '--discard-prev') {
+                if (newArr.length !== 0 && arr[i - 2] !== '--discard-next') {
+                    newArr.pop();
+                }
+            } else if (arr[i] === '--discard-next') {
+                i++;
+            } else if (arr[i] === '--double-next') {
+                newArr.push(arr[i + 1]);
+            } else if (arr[i] === '--double-prev') {
+                if (i != 0 && arr[i - 2] !== '--discard-next') {
+                    newArr.push(arr[i - 1]);
+                }
+            } else {
+                newArr.push(arr[i]);
             }
+
         }
 
     } else {
         throw new Error();
     }
-    return arr;
-};
+    return newArr.filter(item => item !== undefined);
+}
